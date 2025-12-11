@@ -75,6 +75,12 @@ const CharacterSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    // ----------------- PORTRAIT -----------------
+portrait: {
+  type: String, // dataURL (base64) de l'image
+  default: "",
+},
   },
   {
     timestamps: true,
