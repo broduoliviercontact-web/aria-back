@@ -24,12 +24,13 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",                 // front en dev
-      "https://ton-site-front.netlify.app",   // (plus tard) ton domaine de prod
+      "http://localhost:5173",
+      "https://aria-sheet.netlify.app", // ← mets EXACTEMENT ton domaine
     ],
     credentials: true,
   })
 );
+
 
 app.use(express.json({ limit: "3mb" }));
 app.use(express.urlencoded({ extended: true, limit: "3mb" }));
