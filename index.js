@@ -251,6 +251,7 @@ app.delete("/characters/:id", authRequired, async (req, res) => {
 
 
 // Connexion
+// Connexion
 app.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -267,11 +268,12 @@ app.post("/auth/login", async (req, res) => {
 
     const token = createToken(user);
 
+    // 👉 IMPORTANT : cookie cross-site
     res
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",   // pour pouvoir l'envoyer depuis localhost:5173
+        secure: true,       // code.run est en HTTPS
         maxAge: 7 * 24 * 60 * 60 * 1000,
       })
       .json({
