@@ -22,6 +22,14 @@ const SpecialCompetenceSchema = new mongoose.Schema(
 
 const CharacterSchema = new mongoose.Schema(
   {
+    // 🔐 lien avec l'utilisateur propriétaire du perso
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+
+    // ----------------- MÉTA / IDENTITÉ -----------------
     meta: {
       status: { type: String, default: "draft" },
     },
@@ -30,6 +38,7 @@ const CharacterSchema = new mongoose.Schema(
     profession: { type: String, default: "" },
     age: { type: Number, default: null },
 
+    // ----------------- STATS & MODES -----------------
     stats: [StatSchema],
     diceRolls: { type: Object, default: {} },
 
@@ -38,9 +47,34 @@ const CharacterSchema = new mongoose.Schema(
     skillMode: { type: String, default: "ready" },
     isCreationDone: { type: Boolean, default: false },
 
+    // ----------------- COMPÉTENCES -----------------
     xp: { type: Number, default: 0 },
     competences: { type: Array, default: [] },
     specialCompetences: [SpecialCompetenceSchema],
+
+    // ----------------- INVENTAIRE -----------------
+    // Tu pourras y stocker les mêmes objets que dans ton front
+    inventory: {
+      type: Array,
+      default: [],
+    },
+
+    // ----------------- ALCHIMIE -----------------
+    // Tu peux y mettre par ex. { enabled: true, potions: [...] }
+    alchemy: {
+      type: Object,
+      default: {},
+    },
+
+    // ----------------- PHRASES "JE SUIS GÉNIAL" / "SOCIÉTÉ" -----------------
+    phraseGenial: {
+      type: String,
+      default: "",
+    },
+    phraseSocieter: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,
