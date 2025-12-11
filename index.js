@@ -23,10 +23,14 @@ const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 // -------------------- MIDDLEWARES --------------------
 app.use(
   cors({
-    origin: "http://localhost:5173", // adapte à ton front (Netlify, etc.)
+    origin: [
+      "http://localhost:5173",                 // front en dev
+      "https://ton-site-front.netlify.app",   // (plus tard) ton domaine de prod
+    ],
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -92,18 +96,17 @@ app.post("/auth/register", async (req, res) => {
     const token = createToken(user);
 
     res
-      .cookie("token", token, {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .status(201)
-      .json({
-        id: user._id,
-        email: user.email,
-        displayName: user.displayName,
-      });
+  .cookie("token", token, {
+    httpOnly: true,
+    sameSite: "none",   // <<< IMPORTANT pour cross-site
+    secure: true,       // le domaine Northflank est en HTTPS
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  })
+  .json({
+    id: user._id,
+    email: user.email,
+    displayName: user.displayName,
+  });
   } catch (err) {
     console.error("❌ Erreur /auth/register :", err);
     res.status(500).json({ message: "Erreur serveur" });
@@ -284,8 +287,15 @@ app.post("/auth/login", async (req, res) => {
 
 // Déconnexion
 app.post("/auth/logout", (req, res) => {
-  res.clearCookie("token").json({ message: "Déconnecté" });
+  res
+    .clearCookie("token", {
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    })
+    .json({ message: "Déconnecté" });
 });
+
 
 // Infos du user courant
 app.get("/auth/me", authRequired, async (req, res) => {

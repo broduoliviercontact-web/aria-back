@@ -27,5 +27,6 @@
   "bugs": {
     "url": "https://github.com/broduoliviercontact-web/aria-back/issues"
   },
-  "homepage": "https://github.com/broduoliviercontact-web/aria-back#readme"
+  "homepage": "https://github.com/broduoliviercontact-web/aria-back#readme",
+  "devDependencies": {}
 }
