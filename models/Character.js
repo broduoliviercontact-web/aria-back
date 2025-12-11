@@ -33,10 +33,12 @@ const CharacterSchema = new mongoose.Schema(
     meta: {
       status: { type: String, default: "draft" },
     },
-    player: { type: String, default: "" },
-    name: { type: String, required: true },
-    profession: { type: String, default: "" },
-    age: { type: Number, default: null },
+// Identité
+player: { type: String, default: "" },
+name: { type: String, default: "" }, // 👈 plus "required"
+age: { type: Number, min: 0 },
+profession: { type: String, default: "" },
+
 
     // ----------------- STATS & MODES -----------------
     stats: [StatSchema],
@@ -77,10 +79,11 @@ const CharacterSchema = new mongoose.Schema(
     },
 
     // ----------------- PORTRAIT -----------------
-portrait: {
-  type: String, // dataURL (base64) de l'image
+portraitUrl: {
+  type: String,
   default: "",
 },
+
   },
   {
     timestamps: true,
