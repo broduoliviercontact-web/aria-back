@@ -258,9 +258,17 @@ app.post("/characters", authRequired, async (req, res) => {
     const payload = req.body;
 
     const character = await Character.create({
+      
       ...payload,
       user: req.userId, // lien vers le user connecté
+isMage: typeof payload.isMage === "boolean" ? payload.isMage : false,
+magicDeckSize:
+  typeof payload.magicDeckSize === "number" && !Number.isNaN(payload.magicDeckSize)
+    ? payload.magicDeckSize
+    : 24,
+
     });
+console.log("SAVED isMage:", character.isMage, "deck:", character.magicDeckSize);
 
     res.status(201).json({
       status: "ok",
@@ -326,7 +334,13 @@ app.put("/characters/:id", authRequired, async (req, res) => {
       { _id: id, user: req.userId },
       {
         ...payload,
-        user: req.userId, // on force le propriétaire
+        user: req.userId,
+isMage: typeof payload.isMage === "boolean" ? payload.isMage : false,
+magicDeckSize:
+  typeof payload.magicDeckSize === "number" && !Number.isNaN(payload.magicDeckSize)
+    ? payload.magicDeckSize
+    : 24,
+
       },
       {
         new: true,

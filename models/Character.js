@@ -95,7 +95,7 @@ const CharacterSchema = new mongoose.Schema(
 
     // Identité
     player: { type: String, default: "" },
-    name: { type: String, default: "" }, // plus "required: true"
+    name: { type: String, default: "" },
     age: { type: Number, min: 0 },
     profession: { type: String, default: "" },
 
@@ -133,11 +133,15 @@ const CharacterSchema = new mongoose.Schema(
     isAlchemist: { type: Boolean, default: false },
     alchemyPotions: { type: [AlchemyPotionSchema], default: [] },
 
+    // ✅ Magie (Option A : champs simples)
+    isMage: { type: Boolean, default: false },
+    magicDeckSize: { type: Number, default: 24 },
+
     // Phrases
     phraseGenial: { type: String, default: "" },
     phraseSociete: { type: String, default: "" },
 
-    // 🎨 Portrait : c'est ici le champ important
+    // 🎨 Portrait
     portrait: { type: String, default: "" },
   },
   { timestamps: true }
