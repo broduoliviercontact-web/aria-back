@@ -12,6 +12,28 @@ const StatSchema = new mongoose.Schema(
   { _id: false }
 );
 
+// Ajoute ça en haut (après les autres schemas)
+const MagicCardSchema = new mongoose.Schema(
+  {
+    family: { type: String, enum: ["carreau", "coeur", "pique", "trefle"], required: true },
+    value: { type: Number, min: 1, max: 13, required: true },
+  },
+  { _id: false }
+);
+
+const MagicSchema = new mongoose.Schema(
+  {
+    isMage: { type: Boolean, default: false },
+    deckSize: { type: Number, default: 24 },
+    deck: { type: [MagicCardSchema], default: [] },
+currentCard: { type: MagicCardSchema, default: undefined },
+
+    used: { type: [MagicCardSchema], default: [] },
+  },
+  { _id: false }
+);
+
+
 const CompetenceSchema = new mongoose.Schema(
   {
     id: String,
@@ -140,6 +162,9 @@ const CharacterSchema = new mongoose.Schema(
     // Phrases
     phraseGenial: { type: String, default: "" },
     phraseSociete: { type: String, default: "" },
+
+    magic: { type: MagicSchema, default: () => ({}) },
+
 
     // 🎨 Portrait
     portrait: { type: String, default: "" },
