@@ -299,6 +299,44 @@ app.get("/characters", authRequired, async (req, res) => {
     });
   }
 });
+// ✅ PUBLIC : personnages "livre de règles" (compte demo)
+app.get("/characters/public", async (req, res) => {
+  try {
+    const limitRaw = Number(req.query.limit);
+    const limit =
+      Number.isFinite(limitRaw) && limitRaw > 0 && limitRaw <= 24 ? limitRaw : 6;
+
+    const demoEmail = process.env.DEMO_EMAIL;
+    if (!demoEmail) {
+      return res.status(500).json({
+        status: "error",
+        message: "DEMO_EMAIL manquant côté serveur",
+      });
+    }
+
+    const demoUser = await User.findOne({ email: demoEmail }).select("_id");
+    if (!demoUser) {
+      return res.status(404).json({
+        status: "error",
+        message: "Compte démo introuvable. Crée-le d'abord.",
+      });
+    }
+
+    const characters = await Character.find({ user: demoUser._id })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      // ✅ on renvoie seulement des champs safe pour l'accueil
+      .select("name profession portrait meta createdAt");
+
+    res.json(characters);
+  } catch (error) {
+    console.error("❌ Erreur /characters/public :", error);
+    res.status(500).json({
+      status: "error",
+      message: "Erreur serveur en récupérant les personnages publics",
+    });
+  }
+});
 
 // Récupérer un personnage précis
 app.get("/characters/:id", authRequired, async (req, res) => {
