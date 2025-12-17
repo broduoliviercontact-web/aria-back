@@ -15,8 +15,24 @@ const StatSchema = new mongoose.Schema(
 // Ajoute ça en haut (après les autres schemas)
 const MagicCardSchema = new mongoose.Schema(
   {
-    family: { type: String, enum: ["carreau", "coeur", "pique", "trefle"], required: true },
-    value: { type: Number, min: 1, max: 13, required: true },
+    family: {
+      type: String,
+      enum: ["carreau", "coeur", "pique", "trefle", "joker"],
+      required: true,
+    },
+    value: {
+      type: mongoose.Schema.Types.Mixed,
+      required: true,
+      validate: {
+        validator(v) {
+          // joker
+          if (v === "joker") return true;
+          // cartes normales 1..13
+          return Number.isInteger(v) && v >= 1 && v <= 13;
+        },
+        message: "value must be 1..13 or 'joker'",
+      },
+    },
   },
   { _id: false }
 );
@@ -24,10 +40,18 @@ const MagicCardSchema = new mongoose.Schema(
 const MagicSchema = new mongoose.Schema(
   {
     isMage: { type: Boolean, default: false },
+
+    // ✅ NEW
+    mageType: {
+      type: String,
+      enum: ["outsider", "academy", "misericordieux"],
+      default: "outsider",
+    },
+    includeJoker: { type: Boolean, default: true },
+
     deckSize: { type: Number, default: 24 },
     deck: { type: [MagicCardSchema], default: [] },
-currentCard: { type: MagicCardSchema, default: undefined },
-
+    currentCard: { type: MagicCardSchema, default: null },
     used: { type: [MagicCardSchema], default: [] },
   },
   { _id: false }
@@ -158,12 +182,12 @@ const CharacterSchema = new mongoose.Schema(
     // ✅ Magie (Option A : champs simples)
     isMage: { type: Boolean, default: false },
     magicDeckSize: { type: Number, default: 24 },
-
+magic: { type: MagicSchema, default: () => ({}) },
     // Phrases
     phraseGenial: { type: String, default: "" },
     phraseSociete: { type: String, default: "" },
 
-    magic: { type: MagicSchema, default: () => ({}) },
+
 
 
     // 🎨 Portrait

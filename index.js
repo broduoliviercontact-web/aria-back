@@ -255,20 +255,22 @@ app.get("/auth/me", authRequired, async (req, res) => {
 // Créer / sauvegarder un personnage
 app.post("/characters", authRequired, async (req, res) => {
   try {
-    const payload = req.body;
+    const payload = req.body || {};
+
+    // ✅ compat ancien format -> nouveau bloc magic
+    if (payload.isMage != null) {
+      payload.magic = payload.magic || {};
+      payload.magic.isMage = !!payload.isMage;
+    }
+    if (payload.magicDeckSize != null) {
+      payload.magic = payload.magic || {};
+      payload.magic.deckSize = Number(payload.magicDeckSize) || 24;
+    }
 
     const character = await Character.create({
-      
       ...payload,
-      user: req.userId, // lien vers le user connecté
-isMage: typeof payload.isMage === "boolean" ? payload.isMage : false,
-magicDeckSize:
-  typeof payload.magicDeckSize === "number" && !Number.isNaN(payload.magicDeckSize)
-    ? payload.magicDeckSize
-    : 24,
-
+      user: req.userId,
     });
-console.log("SAVED isMage:", character.isMage, "deck:", character.magicDeckSize);
 
     res.status(201).json({
       status: "ok",
@@ -308,33 +310,23 @@ app.get("/characters/public", async (req, res) => {
 
     const demoEmail = process.env.DEMO_EMAIL;
     if (!demoEmail) {
-      return res.status(500).json({
-        status: "error",
-        message: "DEMO_EMAIL manquant côté serveur",
-      });
+      return res.status(500).json({ status: "error", message: "DEMO_EMAIL manquant côté serveur" });
     }
 
     const demoUser = await User.findOne({ email: demoEmail }).select("_id");
     if (!demoUser) {
-      return res.status(404).json({
-        status: "error",
-        message: "Compte démo introuvable. Crée-le d'abord.",
-      });
+      return res.status(404).json({ status: "error", message: "Compte démo introuvable. Crée-le d'abord." });
     }
 
     const characters = await Character.find({ user: demoUser._id })
       .sort({ createdAt: -1 })
       .limit(limit)
-      // ✅ on renvoie seulement des champs safe pour l'accueil
       .select("name profession portrait meta createdAt");
 
     res.json(characters);
   } catch (error) {
     console.error("❌ Erreur /characters/public :", error);
-    res.status(500).json({
-      status: "error",
-      message: "Erreur serveur en récupérant les personnages publics",
-    });
+    res.status(500).json({ status: "error", message: "Erreur serveur en récupérant les personnages publics" });
   }
 });
 
@@ -366,19 +358,23 @@ app.get("/characters/:id", authRequired, async (req, res) => {
 app.put("/characters/:id", authRequired, async (req, res) => {
   try {
     const { id } = req.params;
-    const payload = req.body;
+    const payload = req.body || {};
+
+    // ✅ compat ancien format -> nouveau bloc magic
+    if (payload.isMage != null) {
+      payload.magic = payload.magic || {};
+      payload.magic.isMage = !!payload.isMage;
+    }
+    if (payload.magicDeckSize != null) {
+      payload.magic = payload.magic || {};
+      payload.magic.deckSize = Number(payload.magicDeckSize) || 24;
+    }
 
     const updated = await Character.findOneAndUpdate(
       { _id: id, user: req.userId },
       {
         ...payload,
         user: req.userId,
-isMage: typeof payload.isMage === "boolean" ? payload.isMage : false,
-magicDeckSize:
-  typeof payload.magicDeckSize === "number" && !Number.isNaN(payload.magicDeckSize)
-    ? payload.magicDeckSize
-    : 24,
-
       },
       {
         new: true,
